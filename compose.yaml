@@ -1,5 +1,4 @@
 services:
-
   db:
     image: mysql:8.0
     environment:
@@ -28,54 +27,43 @@ services:
       timeout: 3s
       retries: 10
 
-  # ─────────────────────────────────────────
-  # Webアプリ（BEAR.Sunday + PHP-FPM）
-  # スケールアウト可能（× N）
-  # ─────────────────────────────────────────
   app:
     build:
-      context: .
-      dockerfile: Dockerfile.app
+      context: components/producer
+      dockerfile: Dockerfile
     environment:
       DB_HOST: db
       DB_NAME: outbox_demo
       DB_USER: app
       DB_PASSWORD: secret
       REDIS_HOST: redis
+      OUTBOX_CHANNEL: "outbox:notify"
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
-    volumes:
-      - .:/app
-      - ./var:/app/var
 
   nginx:
     image: nginx:alpine
     ports:
       - "8080:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - .:/app
+      - ./components/producer/nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - app
 
-  # ─────────────────────────────────────────
-  # Pump（BEAR.Sunday CLI・常に単一）
-  # Webアプリと同じ AppModule を使うため
-  # DI設定・バインディングを共有できる
-  # ─────────────────────────────────────────
   pump:
     build:
-      context: .
-      dockerfile: Dockerfile.pump
+      context: components/pump
+      dockerfile: Dockerfile
     environment:
       DB_HOST: db
       DB_NAME: outbox_demo
       DB_USER: app
       DB_PASSWORD: secret
       REDIS_HOST: redis
+      OUTBOX_CHANNEL: "outbox:notify"
       CONSUMER_ENDPOINT: http://consumer:8081
     depends_on:
       db:
@@ -84,14 +72,12 @@ services:
         condition: service_healthy
       consumer:
         condition: service_started
-    volumes:
-      - ./var:/app/var
     restart: unless-stopped
 
   consumer:
     build:
-      context: .
-      dockerfile: Dockerfile.consumer
+      context: components/consumer
+      dockerfile: Dockerfile
     ports:
       - "8081:8081"
 
