@@ -1,0 +1,33 @@
+{
+    "name": "myvendor/outbox-demo",
+    "description": "Transactional Outbox demo with BEAR.Sunday + ALPS + Redis",
+    "require": {
+        "php": "^8.3",
+        "bear/package": "^1.13",
+        "ray/aura-sql-module": "^1.13",
+        "monolog/monolog": "^3.0",
+        "doctrine/cache": "^1.0",
+        "koriym/param-reader": "^1.1",
+        "nikic/php-parser": "^5.7",
+        "koriym/attributes": "^1.0",
+        "ext-swoole": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MyVendor\\OutboxDemo\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MyVendor\\OutboxDemo\\": "tests/"
+        }
+    },
+    "extra": {
+        "bear-app": {
+            "name": "MyVendor\\OutboxDemo"
+        }
+    }
+}
