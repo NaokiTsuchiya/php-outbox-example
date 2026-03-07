@@ -1,7 +1,0 @@
-FROM php:8.3-cli
-
-WORKDIR /app
-COPY consumer/server.php .
-
-EXPOSE 8081
-CMD ["php", "-S", "0.0.0.0:8081", "server.php"]
