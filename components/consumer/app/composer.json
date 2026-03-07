@@ -1,0 +1,6 @@
+{
+    "name": "myvendor/outbox-demo-consumer",
+    "require": {
+        "php": "^8.3"
+    }
+}
