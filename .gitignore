@@ -1,6 +1,2 @@
-/.phpunit.cache/
-/vendor/
-/var/log/*
-/var/tmp/*
 /components/producer/vendor/
 /components/pump/app/vendor/
