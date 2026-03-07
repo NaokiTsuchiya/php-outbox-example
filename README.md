@@ -9,7 +9,7 @@ BEAR.Sunday + Swoole + Redis Pub/Sub による Transactional Outbox パターン
 ## アーキテクチャ
 
 ```
-[Web アプリ (BEAR.Sunday + PHP-FPM x N)]
+[Producer (BEAR.Sunday + PHP-FPM)]
   POST /orders
     OrderCommand#create() ← #[Transactional] AOP
       INSERT orders
@@ -17,8 +17,8 @@ BEAR.Sunday + Swoole + Redis Pub/Sub による Transactional Outbox パターン
     COMMIT
     Redis PUBLISH outbox:notify  ← OutboxSender::notify()（ベストエフォート通知）
 
-[Pump (Swoole コルーチン x 1)]
-  Ray.Di で AppModule を共有
+[Pump (Swoole コルーチン / BEAR.Sunday 非依存)]
+  Ray.Di で PumpModule を使用
   コルーチン 1: Redis SUBSCRIBE outbox:notify  ← 即時起床
   コルーチン 2: 10 秒タイムアウト              ← ポーリング（安全網）
   メインループ:
@@ -34,49 +34,75 @@ BEAR.Sunday + Swoole + Redis Pub/Sub による Transactional Outbox パターン
 
 | 項目 | 技術 |
 |------|------|
-| フレームワーク | BEAR.Sunday (PHP 8.3+) |
-| DI | Ray.Di (`AppModule` を Web/CLI で共有) |
+| フレームワーク | BEAR.Sunday (PHP 8.3+) — Producer のみ |
+| DI | Ray.Di（Producer: `AppModule` / Pump: `PumpModule`） |
 | DB | MySQL 8.0 (AuraSql) |
 | メッセージ通知 | Redis 7 Pub/Sub |
 | Pump 非同期処理 | Swoole コルーチン |
 | ID 生成 | Flake ID（タイムスタンプ + ランダム） |
 
-## ファイル構成
+## プロジェクト構成
+
+プロジェクトは 3 つの独立コンポーネントに分割されている。共有コードは持たず、共通設定（チャネル名等）は環境変数で渡す。
 
 ```
-src/
-  Bootstrap.php              Web/CLI 共通ブートストラップ
-  FlakeId.php                Flake ID 生成（時系列ソート可能）
-  Module/
-    AppModule.php            Ray.Di バインディング（Web/CLI 共有）
-    App.php                  アプリケーションメタ
-    RedisProvider.php        Redis 接続プロバイダ
-  Outbox/
-    OutboxSenderInterface    イベント送信インターフェース
-    OutboxSender             INSERT produced_zero + Redis PUBLISH
-    OutboxPump               Swoole コルーチンで SUBSCRIBE + SELECT + 配信 + ACK
-    OutboxChannel            Redis チャンネル名定数
-    Subscriber               SUBSCRIBE 用 Redis 接続の Qualifier
-    ConsumerInterface        外部配信インターフェース
-    HttpConsumer             HTTP POST で外部サービスへ配信
-    ConsumedPositionRepository  consumed_zero の last_id 永続化
-  Resource/App/
-    Orders.php               注文リソース（GET/POST + ALPS Link）
-    OrderCommand.php         注文作成コマンド（#[Transactional]）
+components/
+  consumer/                  イベント受信モックサーバー
+    Dockerfile
+    README.md
+    app/
+      public/index.php       PHP ビルトインサーバーのエントリポイント
+      composer.json
+  producer/                  BEAR.Sunday Web アプリ（注文 API + Outbox 書き込み）
+    Dockerfile
+    README.md
+    composer.json
+    phpunit.xml.dist
+    bin/app.php              BEAR.Sunday CLI エントリ
+    public/index.php         Web エントリ（hal-api-app コンテキスト）
+    src/
+      Bootstrap.php
+      FlakeId.php
+      Module/
+        App.php              BEAR.Sunday App クラス
+        AppModule.php        DI 設定
+        RedisProvider.php    Redis 接続プロバイダ
+      Outbox/
+        OutboxSenderInterface.php
+        OutboxSender.php     INSERT produced_zero + Redis PUBLISH
+      Resource/App/
+        Orders.php           注文リソース（GET/POST）
+        OrderCommand.php     注文作成コマンド（#[Transactional]）
+    tests/
+  pump/                      Outbox Pump（BEAR.Sunday 非依存）
+    Dockerfile
+    README.md
+    app/
+      bin/pump.php           Swoole コルーチンで起動
+      composer.json
+      phpunit.xml.dist
+      src/
+        PumpModule.php       Ray.Di モジュール（AbstractModule ベース）
+        RedisProvider.php
+        OutboxPump.php       SUBSCRIBE + SELECT + 配信 + ACK
+        Subscriber.php       SUBSCRIBE 用 Redis Qualifier
+        ConsumerInterface.php
+        HttpConsumer.php     HTTP POST で外部サービスへ配信
+        ConsumedPositionRepository.php
+      tests/
 alps/
   orders.json                ALPS プロファイル
-bin/
-  app.php                    BEAR.Sunday 標準 CLI エントリ
-  pump.php                   OutboxPump ワーカー（Swoole コルーチン）
-consumer/
-  server.php                 モックコンシューマ（PHP ビルトインサーバー）
-public/
-  index.php                  Web エントリ（hal-api-app コンテキスト）
-sql/
-  schema.sql                 DDL（orders / produced_zero / consumed_zero）
 docs/
+  restructure-plan.md        コンポーネント分割の設計書
   sequence-and-errors.md     シーケンス図・障害パターン
   swoole-migration.md        Swoole 移行メモ
+e2e/
+  test.sh                    E2E テストスクリプト
+etc/
+  nginx.conf                 Nginx 設定
+sql/
+  schema.sql                 DDL（orders / produced_zero / consumed_zero）
+compose.yaml                 Docker Compose 定義
 ```
 
 ## DB スキーマ
@@ -98,8 +124,8 @@ docker compose up --build
 | サービス | 説明 | ポート |
 |----------|------|--------|
 | `nginx` | リバースプロキシ | 8080 |
-| `app` | BEAR.Sunday (PHP-FPM) | - |
-| `pump` | OutboxPump (Swoole) | - |
+| `app` | Producer (PHP-FPM) | - |
+| `pump` | Outbox Pump (Swoole) | - |
 | `consumer` | モックコンシューマ | 8081 |
 | `db` | MySQL 8.0 | 3306 |
 | `redis` | Redis 7 | 6379 |
@@ -127,11 +153,14 @@ php bin/app.php get /orders
 ## テスト
 
 ```bash
-# ユニットテスト
-./vendor/bin/phpunit
+# Producer ユニットテスト
+cd components/producer && ./vendor/bin/phpunit
+
+# Pump ユニットテスト
+cd components/pump/app && ./vendor/bin/phpunit
 
 # E2E テスト（docker compose up 状態で実行）
-./test.sh
+bash e2e/test.sh
 ```
 
 ## ログ確認
