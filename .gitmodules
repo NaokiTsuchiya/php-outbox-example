@@ -1,0 +1,3 @@
+[submodule ".claude/skills/be-framework"]
+	path = .claude/skills/be-framework
+	url = https://github.com/be-framework/skills.git
