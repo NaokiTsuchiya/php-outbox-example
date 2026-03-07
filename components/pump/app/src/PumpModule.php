@@ -53,6 +53,9 @@ class PumpModule extends AbstractModule
         $this->bind(ConsumerInterface::class)
             ->to(HttpConsumer::class);
 
+        // ── Position ──────────────────────────────────────────
+        $this->bind(ConsumedPositionRepository::class);
+
         // ── Logger ──────────────────────────────────────────
         $this->bind(LoggerInterface::class)->toInstance(
             new Logger('pump', [new StreamHandler('php://stderr')])

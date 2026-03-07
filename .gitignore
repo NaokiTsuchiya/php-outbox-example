@@ -1,2 +1,6 @@
-/components/producer/vendor/
+/components/producer/app/vendor/
 /components/pump/app/vendor/
+/components/producer/app/.phpunit.cache/
+/components/pump/app/.phpunit.cache/
+/components/producer/app/var/*
+!/components/producer/app/var/.gitkeep

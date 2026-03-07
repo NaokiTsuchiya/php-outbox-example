@@ -42,4 +42,9 @@ class Redis
     {
         return true;
     }
+
+    public function publish(string $channel, string $message): int
+    {
+        return 0;
+    }
 }
