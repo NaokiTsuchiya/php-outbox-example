@@ -1,0 +1,69 @@
+{
+    "$schema": "https://alps-io.github.io/schemas/alps.json",
+    "alps": {
+        "version": "1.0",
+        "title": "Outbox Demo API",
+        "doc": {
+            "value": "Transactional Outbox パターンのデモ。注文を作成するとOutboxを通じてドメインイベントが配信される。"
+        },
+        "descriptor": [
+            {
+                "id": "orderId",
+                "type": "semantic",
+                "title": "注文ID",
+                "doc": { "value": "Flake IDによる時系列ソート可能な一意識別子" }
+            },
+            {
+                "id": "userId",
+                "type": "semantic",
+                "title": "ユーザーID"
+            },
+            {
+                "id": "amount",
+                "type": "semantic",
+                "title": "金額（円）"
+            },
+            {
+                "id": "createdAt",
+                "type": "semantic",
+                "title": "作成日時"
+            },
+            {
+                "id": "go-orders",
+                "type": "safe",
+                "title": "注文一覧を取得",
+                "rt": "#Orders"
+            },
+            {
+                "id": "do-create-order",
+                "type": "unsafe",
+                "title": "注文を作成",
+                "rt": "#Order",
+                "descriptor": [
+                    { "href": "#userId" },
+                    { "href": "#amount" }
+                ]
+            },
+            {
+                "id": "Orders",
+                "type": "semantic",
+                "title": "注文コレクション",
+                "descriptor": [
+                    { "href": "#Order" },
+                    { "href": "#do-create-order" }
+                ]
+            },
+            {
+                "id": "Order",
+                "type": "semantic",
+                "title": "注文",
+                "descriptor": [
+                    { "href": "#orderId" },
+                    { "href": "#userId" },
+                    { "href": "#amount" },
+                    { "href": "#createdAt" }
+                ]
+            }
+        ]
+    }
+}
