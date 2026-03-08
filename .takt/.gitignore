@@ -8,6 +8,8 @@
 !config.yaml
 
 # Facets and pieces (version-controlled)
+!facets/
+!facets/**
 !pieces/
 !pieces/**
 !personas/
