@@ -5,7 +5,7 @@
 - 3 independent components under `components/`
   - **Producer**: BEAR.Sunday app (`MyVendor\OutboxDemo`) — `components/producer/`
   - **Pump**: Swoole worker (`MyVendor\OutboxPump`) — `components/pump/app/`
-  - **Consumer**: Mock HTTP server — `components/consumer/`
+  - **Consumer**: SQS ポーリングワーカー — `components/consumer/`
 
 ## Commands
 - `docker compose up --build` - start all services

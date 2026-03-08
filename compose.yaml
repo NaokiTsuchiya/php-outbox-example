@@ -27,6 +27,19 @@ services:
       timeout: 3s
       retries: 10
 
+  elasticmq:
+    image: softwaremill/elasticmq:latest
+    ports:
+      - "9324:9324"
+      - "9325:9325"
+    volumes:
+      - ./etc/elasticmq.conf:/opt/elasticmq.conf
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-o", "/dev/null", "http://localhost:9324"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   app:
     build:
       context: components/producer
@@ -64,30 +77,34 @@ services:
       DB_PASSWORD: secret
       REDIS_HOST: redis
       OUTBOX_CHANNEL: "outbox:notify"
-      CONSUMER_ENDPOINT: http://consumer:8081
+      SQS_ENDPOINT: http://elasticmq:9324
+      SQS_QUEUE_URL: http://elasticmq:9324/000000000000/outbox-events.fifo
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
-      consumer:
-        condition: service_started
+      elasticmq:
+        condition: service_healthy
     restart: unless-stopped
 
   consumer:
     build:
       context: components/consumer
       dockerfile: Dockerfile
-    ports:
-      - "8081:8081"
     environment:
       DB_HOST: db
       DB_NAME: outbox_demo
       DB_USER: app
       DB_PASSWORD: secret
+      SQS_ENDPOINT: http://elasticmq:9324
+      SQS_QUEUE_URL: http://elasticmq:9324/000000000000/outbox-events.fifo
     depends_on:
       db:
         condition: service_healthy
+      elasticmq:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   db_data:

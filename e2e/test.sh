@@ -54,10 +54,19 @@ for i in $(seq 1 20); do
 done
 $DELIVERED && ok "message delivered by pump" || ng "message not delivered within 20s"
 
-# 6) Consumer がイベントを受信したか
-echo "[6] Consumer received event"
-CONSUMER_LOG=$(docker compose logs consumer 2>&1)
-echo "$CONSUMER_LOG" | grep -q "$ORDER_ID" && ok "consumer received event" || ng "consumer did not receive event"
+# 6) Consumer がイベントを処理したか（processed_events テーブル）
+echo "[6] Consumer processed event"
+PROCESSED=false
+for i in $(seq 1 20); do
+  COUNT=$(docker compose exec -T db mysql -uapp -psecret outbox_demo -N -e \
+    "SELECT COUNT(*) FROM processed_events WHERE event_id='$OUTBOX_ID';" 2>/dev/null | tr -d '[:space:]')
+  if [ "$COUNT" -ge 1 ] 2>/dev/null; then
+    PROCESSED=true
+    break
+  fi
+  sleep 1
+done
+$PROCESSED && ok "event processed by consumer" || ng "event not processed within 20s"
 
 # 結果
 echo ""

@@ -6,6 +6,11 @@ namespace MyVendor\OutboxPump;
 
 use Aura\Sql\ExtendedPdo;
 use Aura\Sql\ExtendedPdoInterface;
+use Aws\Handler\Guzzle\GuzzleHandler;
+use Aws\Sqs\SqsClient;
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\CurlHandler;
+use GuzzleHttp\HandlerStack;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
@@ -21,11 +26,11 @@ class PumpModule extends AbstractModule
             new ExtendedPdo(
                 sprintf(
                     'mysql:host=%s;dbname=%s;charset=utf8mb4',
-                    $_ENV['DB_HOST'] ?? 'db',
-                    $_ENV['DB_NAME'] ?? 'outbox_demo'
+                    $_ENV['DB_HOST'],
+                    $_ENV['DB_NAME']
                 ),
-                $_ENV['DB_USER'] ?? 'app',
-                $_ENV['DB_PASSWORD'] ?? 'secret',
+                $_ENV['DB_USER'],
+                $_ENV['DB_PASSWORD'],
             )
         );
 
@@ -42,16 +47,29 @@ class PumpModule extends AbstractModule
         // ── チャネル名 ──────────────────────────────────────
         $this->bind()
             ->annotatedWith('outbox_channel')
-            ->toInstance($_ENV['OUTBOX_CHANNEL'] ?? 'outbox:notify');
+            ->toInstance($_ENV['OUTBOX_CHANNEL']);
 
-        // ── Consumer エンドポイント ─────────────────────────
+        // ── SQS クライアント ────────────────────────────────
+        // Swoole コルーチン内では CurlMultiHandler がハンドルを int にキャストして失敗するため
+        // CurlHandler（シングルリクエスト）を使用する
+        $this->bind(SqsClient::class)->toInstance(new SqsClient([
+            'region'       => 'elasticmq',
+            'version'      => 'latest',
+            'endpoint'     => $_ENV['SQS_ENDPOINT'],
+            'credentials'  => ['key' => 'dummy', 'secret' => 'dummy'],
+            'http_handler' => new GuzzleHandler(new Client([
+                'handler' => HandlerStack::create(new CurlHandler()),
+            ])),
+        ]));
+
+        // ── SQS キュー URL ──────────────────────────────────
         $this->bind()
-            ->annotatedWith('consumer_endpoint')
-            ->toInstance($_ENV['CONSUMER_ENDPOINT'] ?? 'http://consumer:8081');
+            ->annotatedWith('sqs_queue_url')
+            ->toInstance($_ENV['SQS_QUEUE_URL']);
 
         // ── Consumer ────────────────────────────────────────
         $this->bind(ConsumerInterface::class)
-            ->to(HttpConsumer::class);
+            ->to(SqsConsumer::class);
 
         // ── Position ──────────────────────────────────────────
         $this->bind(ConsumedPositionRepository::class);
