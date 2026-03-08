@@ -4,7 +4,7 @@
     "require": {
         "php": "^8.3",
         "ray/di": "^2.17",
-        "aura/sql": "^5.0",
+        "aura/sql": "^6.0",
         "monolog/monolog": "^3.0",
         "aws/aws-sdk-php": "^3.0",
         "ext-swoole": "*",
@@ -25,7 +25,7 @@
     },
     "config": {
         "platform": {
-            "php": "8.3.0"
+            "php": "8.4.0"
         }
     }
 }

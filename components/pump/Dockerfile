@@ -1,12 +1,15 @@
-FROM php:8.3-cli
+FROM alpine:3.23
 
-RUN apt-get update && apt-get install -y \
-    git unzip libzip-dev \
-    && docker-php-ext-install pdo pdo_mysql zip \
-    && pecl install redis && docker-php-ext-enable redis \
-    && pecl install --configureoptions 'enable-sockets="no" enable-openssl="no" enable-mysqlnd="no" enable-swoole-curl="no" enable-cares="no" enable-brotli="no" enable-zstd="no" enable-swoole-pgsql="no" with-swoole-odbc="no" with-swoole-oracle="no" enable-swoole-sqlite="no" enable-swoole-thread="no" enable-iouring="no"' swoole \
-    && docker-php-ext-enable swoole \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache \
+    php84 php84-pdo php84-pdo_mysql php84-zip \
+    php84-pecl-redis php84-pecl-swoole \
+    php84-phar php84-iconv php84-mbstring \
+    php84-tokenizer php84-xml php84-dom php84-ctype \
+    php84-openssl php84-curl php84-simplexml \
+    git unzip
+
+# $_ENV に環境変数を展開する（Alpine の PHP デフォルトは GPCS のため E を追加）
+RUN echo "variables_order = EGPCS" >> /etc/php84/php.ini
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
