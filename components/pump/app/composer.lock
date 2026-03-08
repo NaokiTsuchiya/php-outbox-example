@@ -4,25 +4,25 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6c63266c614234ef671de9fbb49c4335",
+    "content-hash": "1bc19e68091a94bf6e11fb12c13fea13",
     "packages": [
         {
             "name": "aura/sql",
-            "version": "5.0.3",
+            "version": "6.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/auraphp/Aura.Sql.git",
-                "reference": "fd7a6dd1c9d2a1da5754c50f287f8be8a27db0e7"
+                "reference": "0f4ac7a11b435a9854a28d686e7269ebe7582ec8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/auraphp/Aura.Sql/zipball/fd7a6dd1c9d2a1da5754c50f287f8be8a27db0e7",
-                "reference": "fd7a6dd1c9d2a1da5754c50f287f8be8a27db0e7",
+                "url": "https://api.github.com/repos/auraphp/Aura.Sql/zipball/0f4ac7a11b435a9854a28d686e7269ebe7582ec8",
+                "reference": "0f4ac7a11b435a9854a28d686e7269ebe7582ec8",
                 "shasum": ""
             },
             "require": {
                 "ext-pdo": "*",
-                "php": ">=8.1",
+                "php": "^8.4",
                 "psr/log": "^1.0 || ^2.0 || ^3.0"
             },
             "require-dev": {
@@ -60,9 +60,9 @@
             ],
             "support": {
                 "issues": "https://github.com/auraphp/Aura.Sql/issues",
-                "source": "https://github.com/auraphp/Aura.Sql/tree/5.0.3"
+                "source": "https://github.com/auraphp/Aura.Sql/tree/6.0.1"
             },
-            "time": "2025-01-22T06:39:17+00:00"
+            "time": "2026-01-05T05:21:45+00:00"
         },
         {
             "name": "aws/aws-crt-php",
@@ -1223,25 +1223,25 @@
         },
         {
             "name": "symfony/filesystem",
-            "version": "v7.4.6",
+            "version": "v8.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "3ebc794fa5315e59fd122561623c2e2e4280538e"
+                "reference": "7bf9162d7a0dff98d079b72948508fa48018a770"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/3ebc794fa5315e59fd122561623c2e2e4280538e",
-                "reference": "3ebc794fa5315e59fd122561623c2e2e4280538e",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/7bf9162d7a0dff98d079b72948508fa48018a770",
+                "reference": "7bf9162d7a0dff98d079b72948508fa48018a770",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2",
+                "php": ">=8.4",
                 "symfony/polyfill-ctype": "~1.8",
                 "symfony/polyfill-mbstring": "~1.8"
             },
             "require-dev": {
-                "symfony/process": "^6.4|^7.0|^8.0"
+                "symfony/process": "^7.4|^8.0"
             },
             "type": "library",
             "autoload": {
@@ -1269,7 +1269,7 @@
             "description": "Provides basic utilities for the filesystem",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/filesystem/tree/v7.4.6"
+                "source": "https://github.com/symfony/filesystem/tree/v8.0.6"
             },
             "funding": [
                 {
@@ -1289,7 +1289,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-02-25T16:50:00+00:00"
+            "time": "2026-02-25T16:59:43+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -3255,7 +3255,7 @@
     },
     "platform-dev": {},
     "platform-overrides": {
-        "php": "8.3.0"
+        "php": "8.4.0"
     },
     "plugin-api-version": "2.9.0"
 }
