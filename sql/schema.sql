@@ -17,3 +17,9 @@ CREATE TABLE IF NOT EXISTS consumed_zero (
     producer_id VARCHAR(64) PRIMARY KEY,
     last_id     VARCHAR(32) NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS processed_events (
+    event_id     VARCHAR(32) PRIMARY KEY,
+    type         VARCHAR(64) NOT NULL,
+    processed_at DATETIME    DEFAULT CURRENT_TIMESTAMP
+);

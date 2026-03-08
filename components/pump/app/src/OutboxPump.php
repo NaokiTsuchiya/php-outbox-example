@@ -97,7 +97,7 @@ class OutboxPump
         $this->logger->debug('Relaying', ['count' => count($rows), 'from_id' => $this->lastId]);
 
         foreach ($rows as $row) {
-            $this->consumer->send($row['type'], $row['message']);
+            $this->consumer->send($row['id'], $row['type'], $row['message']);
 
             $this->position->update($row['id']);
             $this->lastId = $row['id'];

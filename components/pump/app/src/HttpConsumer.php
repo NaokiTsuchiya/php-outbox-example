@@ -12,13 +12,14 @@ class HttpConsumer implements ConsumerInterface
         #[Named('consumer_endpoint')] private string $endpoint,
     ) {}
 
-    public function send(string $type, string $payload): void
+    public function send(string $id, string $type, string $payload): void
     {
         $context = stream_context_create([
             'http' => [
                 'method'  => 'POST',
                 'header'  => "Content-Type: application/json\r\n",
                 'content' => json_encode([
+                    'id'      => $id,
                     'type'    => $type,
                     'payload' => json_decode($payload, true),
                 ]),

@@ -274,9 +274,9 @@ movements:
               format: summary
               use_judge: false
     rules:
-      - condition: all("approved", "すべて問題なし", "approved")
+      - condition: all("approved", "approved", "すべて問題なし")
         next: COMPLETE
-      - condition: any("needs_fix", "要求未達成、テスト失敗、ビルドエラー", "needs_fix")
+      - condition: any("needs_fix", "needs_fix", "要求未達成、テスト失敗、ビルドエラー")
         next: fix
   - name: fix
     edit: true

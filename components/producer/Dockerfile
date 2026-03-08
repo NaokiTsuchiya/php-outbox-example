@@ -14,3 +14,4 @@ COPY app/composer.json app/composer.lock* ./
 RUN composer install --no-dev --optimize-autoloader
 
 COPY app/ .
+RUN mkdir -p var/tmp var/log && chmod -R 777 var

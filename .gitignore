@@ -4,3 +4,9 @@
 /components/pump/app/.phpunit.cache/
 /components/producer/app/var/*
 !/components/producer/app/var/.gitkeep
+/components/consumer/app/vendor/
+/components/consumer/app/var/log/*
+!/components/consumer/app/var/log/.gitkeep
+/components/consumer/app/var/tmp/*
+!/components/consumer/app/var/tmp/.gitkeep
+/components/consumer/app/.phpunit.cache/

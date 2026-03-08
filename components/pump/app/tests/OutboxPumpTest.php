@@ -95,7 +95,7 @@ class OutboxPumpTest extends TestCase
         // Then: consumer に 1 件送信され、position が更新される
         $this->consumer->expects($this->once())
             ->method('send')
-            ->with('order.created', '{"orderId":"abc"}');
+            ->with('100', 'order.created', '{"orderId":"abc"}');
 
         $this->position->expects($this->once())
             ->method('update')
@@ -128,7 +128,7 @@ class OutboxPumpTest extends TestCase
         $callOrder = [];
         $this->consumer->expects($this->exactly(3))
             ->method('send')
-            ->willReturnCallback(function (string $type, string $payload) use (&$callOrder) {
+            ->willReturnCallback(function (string $id, string $type, string $payload) use (&$callOrder) {
                 $callOrder[] = $payload;
             });
 

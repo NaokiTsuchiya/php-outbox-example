@@ -1,0 +1,55 @@
+{
+    "$schema": "https://alps-io.github.io/schemas/alps.json",
+    "alps": {
+        "version": "1.0",
+        "title": "Outbox Consumer API",
+        "doc": {
+            "value": "Transactional Outbox パターンのConsumer。Pump からイベントを受信し、冪等性を保証しながらメール配信などの処理を行う。"
+        },
+        "descriptor": [
+            {
+                "id": "eventId",
+                "type": "semantic",
+                "title": "イベントID",
+                "doc": { "value": "イベントの一意識別子。重複排除に使用する。" }
+            },
+            {
+                "id": "eventType",
+                "type": "semantic",
+                "title": "イベント種別",
+                "doc": { "value": "ORDER_CREATED など、ドメインイベントの種類を表す文字列。" }
+            },
+            {
+                "id": "eventPayload",
+                "type": "semantic",
+                "title": "イベントペイロード",
+                "doc": { "value": "イベントの詳細データ。種別に応じた構造を持つ。" }
+            },
+            {
+                "id": "status",
+                "type": "semantic",
+                "title": "受信ステータス",
+                "doc": { "value": "\"accepted\" のみ。受信完了を示す。" }
+            },
+            {
+                "id": "EventResult",
+                "type": "semantic",
+                "title": "イベント受信結果",
+                "descriptor": [
+                    { "href": "#status" }
+                ]
+            },
+            {
+                "id": "doReceiveEvent",
+                "type": "unsafe",
+                "title": "イベントを受信する",
+                "rt": "#EventResult",
+                "descriptor": [
+                    { "href": "#eventId" },
+                    { "href": "#eventType" },
+                    { "href": "#eventPayload" }
+                ]
+            }
+        ]
+    }
+}

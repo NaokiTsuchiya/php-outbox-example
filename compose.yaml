@@ -20,7 +20,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "16379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -80,6 +80,14 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8081:8081"
+    environment:
+      DB_HOST: db
+      DB_NAME: outbox_demo
+      DB_USER: app
+      DB_PASSWORD: secret
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:
