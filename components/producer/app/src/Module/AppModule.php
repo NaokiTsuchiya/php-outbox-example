@@ -15,8 +15,6 @@ use MyVendor\OutboxDemo\Outbox\OutboxSender;
 use MyVendor\OutboxDemo\Outbox\OutboxSenderInterface;
 use MyVendor\OutboxDemo\Outbox\Subscriber;
 use MyVendor\OutboxDemo\Resource\App\OrderCommand;
-use Ray\AuraSqlModule\AuraSqlModule;
-use Ray\Di\Scope;
 
 class AppModule extends AbstractAppModule
 {
@@ -26,15 +24,7 @@ class AppModule extends AbstractAppModule
         // ── DB ─────────────────────────────────────────────
         // AuraSqlModule が ExtendedPdoInterface をバインドする
         // #[Transactional] AOP はこのモジュールが提供する
-        $this->install(new AuraSqlModule(
-            sprintf(
-                'mysql:host=%s;dbname=%s;charset=utf8mb4',
-                $_ENV['DB_HOST'] ?? 'db',
-                $_ENV['DB_NAME'] ?? 'outbox_demo'
-            ),
-            $_ENV['DB_USER'] ?? 'app',
-            $_ENV['DB_PASSWORD'] ?? 'secret',
-        ));
+        $this->install(new DatabaseModule());
 
         // ── Redis ──────────────────────────────────────────
         $this->bind(\Redis::class)
@@ -55,7 +45,7 @@ class AppModule extends AbstractAppModule
         // Consumer エンドポイント（#[Named('consumer_endpoint')] で注入）
         $this->bind()
             ->annotatedWith('consumer_endpoint')
-            ->toInstance($_ENV['CONSUMER_ENDPOINT'] ?? 'http://consumer:8081');
+            ->toProvider(ConsumerEndpointProvider::class);
 
         $this->bind(OrderCommand::class);
         $this->bind(ConsumedPositionRepository::class);
