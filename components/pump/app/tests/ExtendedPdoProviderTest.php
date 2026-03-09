@@ -5,13 +5,9 @@ declare(strict_types=1);
 namespace MyVendor\OutboxPump;
 
 use Aura\Sql\ExtendedPdoInterface;
-use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-// aura/sql 5.0.3 は PHP 8.4 の PDO::connect() 静的メソッドと競合して Fatal Error になるため
-// PHP < 8.4 でのみ実行する。PHP >= 8.4 では aura/sql のアップデートが必要。
-#[RequiresPhp('< 8.4')]
 class ExtendedPdoProviderTest extends TestCase
 {
     private array $originalEnv = [];

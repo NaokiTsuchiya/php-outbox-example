@@ -1,0 +1,4 @@
+# ローカルの vendor/ を Docker ビルドコンテキストから除外する
+# composer install は Dockerfile 内で実行するため、ローカル vendor/ が混入すると
+# ローカルの aura/sql 旧バージョンが Docker の最新版を上書きし PHP 8.4 互換エラーが発生する
+app/vendor/

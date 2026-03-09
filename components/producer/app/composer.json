@@ -25,6 +25,11 @@
             "MyVendor\\OutboxDemo\\": "tests/"
         }
     },
+    "config": {
+        "platform": {
+            "php": "8.4.0"
+        }
+    },
     "extra": {
         "bear-app": {
             "name": "MyVendor\\OutboxDemo"

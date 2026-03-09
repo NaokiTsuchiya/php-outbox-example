@@ -1,0 +1,4 @@
+# ローカルの vendor/ を Docker ビルドコンテキストから除外する
+# composer install は Dockerfile 内で実行するため、ローカル vendor/ が混入すると
+# Docker 環境（PHP 8.4 / Alpine）向けのパッケージが上書きされる
+app/vendor/

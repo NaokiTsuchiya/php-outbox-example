@@ -10,6 +10,12 @@ RUN apk add --no-cache \
 # nginx コンテナから app:9000 へ接続するため listen アドレスを変更
 RUN sed -i 's/127.0.0.1:9000/0.0.0.0:9000/' /etc/php84/php-fpm.d/www.conf
 
+# $_ENV に環境変数を展開する（Alpine の PHP デフォルトは GPCS のため E を追加）
+RUN echo "variables_order = EGPCS" >> /etc/php84/php.ini
+
+# php-fpm ワーカープロセス生成時に環境変数をクリアしないようにする
+RUN echo "clear_env = no" >> /etc/php84/php-fpm.d/www.conf
+
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
